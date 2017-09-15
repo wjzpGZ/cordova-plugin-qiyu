@@ -2,11 +2,37 @@
 <plugin id="wjzp-cordova-qiyu" version="0.0.1" xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android">
     <name>QiyuPlugin</name>
-    <preference name="QIYU_APP_KEY" />
+    <preference name="QIYU_APP_KEY" default="ba19873656bb36c98c6e81c90923069d"/>
 
     <js-module name="Qiyu" src="www/QiyuPlugin.js">
         <clobbers target="Qiyu"/>
     </js-module>
+
+    <platform name="ios">
+        <config-file target="config.xml" parent="/*">
+            <feature name="Qiyu">
+                <param name="ios-package" value="Qiyu"/>
+                <param name="onload" value="true" />
+            </feature>
+            <preference name="QIYU_APP_KEY" value="$QIYU_APP_KEY"/>
+        </config-file>
+
+        <header-file src="src/ios/Qiyu.h" />
+        <source-file src="src/ios/Qiyu.m" />
+
+        <config-file target="*-Info.plist" parent="NSPhotoLibraryUsageDescription">
+           <string>请允许黔赞访问您的相册</string>
+        </config-file>
+
+        <config-file target="*-Info.plist" parent="NSCameraUsageDescription">
+           <string>请允许黔赞使用您手机的摄像头</string>
+        </config-file>
+
+        <config-file target="*-Info.plist" parent="NSMicrophoneUsageDescription">
+           <string>请允许黔赞使用您手机的麦克风</string>
+        </config-file>
+    </platform>
+
     <platform name="android">
         <config-file parent="/*" target="res/xml/config.xml">
             <feature name="Qiyu">
