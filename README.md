@@ -5,8 +5,7 @@ A cordova plugin, a JS version of Qiyu SDK
 
 # Install
 
-1. ```cordova plugin add url  --variable QIYU_APP_KEY=YOUR_QIYU_APPID```, or using [plugman](https://npmjs.org/package/plugman), [phonegap](https://npmjs.org/package/phonegap), [ionic](http://ionicframework.com/)
-   ``` cordova plugin add QiyuPlugin  --variable QIYU_APP_KEY=ba19873656bb36c98c6e81c90923069d```
+1. ```cordova plugin add https://github.com/wjzpGZ/cordova-plugin-qiyu --variable QIYU_APP_KEY=YOUR_QIYU_APPID```, or using [plugman](https://npmjs.org/package/plugman), [phonegap](https://npmjs.org/package/phonegap), [ionic](http://ionicframework.com/)
 2. ```cordova build ios``` or ```cordova build android```
 
 
