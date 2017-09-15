@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='utf-8'?>
+<plugin id="wjzp-cordova-qiyu" version="0.0.1" xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>QiyuPlugin</name>
+    <preference name="QIYU_APP_KEY" />
+
+    <js-module name="Qiyu" src="www/QiyuPlugin.js">
+        <clobbers target="Qiyu"/>
+    </js-module>
+    <platform name="android">
+        <config-file parent="/*" target="res/xml/config.xml">
+            <feature name="Qiyu">
+                <param name="android-package" value="com.wjzp.cordova.qiyu.QiyuPlugin"/>
+                <param name="onload">true</param>
+            </feature>
+            <preference name="QIYU_APP_KEY" value="$QIYU_APP_KEY"/>
+
+        </config-file>
+        <config-file parent="/*" target="AndroidManifest.xml"></config-file>
+        <source-file src="src/android/QiyuPlugin.java" target-dir="src/com/wjzp/cordova/qiyu"/>
+        <source-file src="src/android/FrescoImageLoader.java" target-dir="src/com/wjzp/cordova/qiyu"/>
+        <source-file src="src/android/QiyuPreferences.java" target-dir="src/com/wjzp/cordova/qiyu"/>
+
+        <framework src="com.qiyukf.unicorn:unicorn:3.10.0"/>
+        <framework src="com.facebook.fresco:fresco:0.9.0"/>
+    </platform>
+</plugin>
