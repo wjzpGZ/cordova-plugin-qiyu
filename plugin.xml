@@ -21,26 +21,42 @@
         <source-file src="src/ios/Qiyu.m" />
 
         <config-file target="*-Info.plist" parent="NSPhotoLibraryUsageDescription">
-           <string>请允许黔赞访问您的相册</string>
+            <string>请允许黔赞访问您的相册</string>
         </config-file>
 
         <config-file target="*-Info.plist" parent="NSCameraUsageDescription">
-           <string>请允许黔赞使用您手机的摄像头</string>
+            <string>请允许黔赞使用您手机的摄像头</string>
         </config-file>
 
         <config-file target="*-Info.plist" parent="NSMicrophoneUsageDescription">
-           <string>请允许黔赞使用您手机的麦克风</string>
+            <string>请允许黔赞使用您手机的麦克风</string>
         </config-file>
     </platform>
 
     <platform name="android">
         <config-file parent="/*" target="res/xml/config.xml">
+
+        <hook type="after_plugin_add" src="script/android_install.js"/>
+		<hook type="after_plugin_install" src="script/android_install.js"/>
+			<config-file parent="/*" target="res/xml/config.xml">
             <feature name="Qiyu">
                 <param name="android-package" value="com.wjzp.cordova.qiyu.QiyuPlugin"/>
                 <param name="onload">true</param>
             </feature>
             <preference name="QIYU_APP_KEY" value="$QIYU_APP_KEY"/>
 
+        </config-file>
+        <config-file target="AndroidManifest.xml" parent="application">
+            <provider
+				android:name="com.qiyukf.nim.uikit.provider.UnicornProvider"
+                    android:authorities="${applicationId}.unicorn.fileprovider"
+                    tools:replace="android:authorities"
+                    android:exported="false"
+                    android:grantUriPermissions="true" >
+                <meta-data
+                        android:name="android.support.FILE_PROVIDER_PATHS"
+                        android:resource="@xml/ysf_provider"/>
+            </provider>
         </config-file>
         <config-file parent="/*" target="AndroidManifest.xml"></config-file>
         <source-file src="src/android/QiyuPlugin.java" target-dir="src/com/wjzp/cordova/qiyu"/>
