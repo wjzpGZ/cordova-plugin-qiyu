@@ -34,11 +34,10 @@
     </platform>
 
     <platform name="android">
-        <config-file parent="/*" target="res/xml/config.xml">
-
         <hook type="after_plugin_add" src="script/android_install.js"/>
-		<hook type="after_plugin_install" src="script/android_install.js"/>
-			<config-file parent="/*" target="res/xml/config.xml">
+        <hook type="after_plugin_install" src="script/android_install.js"/>
+
+        <config-file parent="/*" target="res/xml/config.xml">
             <feature name="Qiyu">
                 <param name="android-package" value="com.wjzp.cordova.qiyu.QiyuPlugin"/>
                 <param name="onload">true</param>
@@ -48,7 +47,7 @@
         </config-file>
         <config-file target="AndroidManifest.xml" parent="application">
             <provider
-				android:name="com.qiyukf.nim.uikit.provider.UnicornProvider"
+                    android:name="com.qiyukf.nim.uikit.provider.UnicornProvider"
                     android:authorities="${applicationId}.unicorn.fileprovider"
                     tools:replace="android:authorities"
                     android:exported="false"
@@ -58,7 +57,6 @@
                         android:resource="@xml/ysf_provider"/>
             </provider>
         </config-file>
-        <config-file parent="/*" target="AndroidManifest.xml"></config-file>
         <source-file src="src/android/QiyuPlugin.java" target-dir="src/com/wjzp/cordova/qiyu"/>
         <source-file src="src/android/FrescoImageLoader.java" target-dir="src/com/wjzp/cordova/qiyu"/>
         <source-file src="src/android/QiyuPreferences.java" target-dir="src/com/wjzp/cordova/qiyu"/>
