@@ -52,7 +52,7 @@
             userInfo.userId = [self.userInfoDictionary objectForKey:@"userId"];
             NSDictionary *userData = [self.userInfoDictionary objectForKey:@"data"];
             if (nil != userData) {
-                if ([userData isKindOfClass:NSDictionary.class] == NO) {
+                if ([userData isKindOfClass:NSArray.class] == NO) {
                     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"UserData参数类型错误"];
                     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
                     return;
@@ -100,6 +100,8 @@
                 return;
             }
             
+            commodityInfo = [[QYCommodityInfo alloc] init];
+            commodityInfo.show = YES;
             commodityInfo.title = [commodityDictionary objectForKey:@"title"];
             commodityInfo.desc = [commodityDictionary objectForKey:@"desc"];
             commodityInfo.pictureUrlString = [commodityDictionary objectForKey:@"picture"];
