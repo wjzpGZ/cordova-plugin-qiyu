@@ -11,6 +11,8 @@
 @implementation Qiyu
 - (void)setUserInfo:(CDVInvokedUrlCommand *)command
 {
+    NSLog(@"[Qiyu]方法:setUserInfo, 参数:%@",command.arguments.firstObject);
+
     CDVPluginResult* result = nil;
     self.userInfoDictionary = command.arguments.firstObject;
     if (self.userInfoDictionary == nil) {
@@ -24,6 +26,8 @@
 
 - (void)open:(CDVInvokedUrlCommand *)command
 {
+     NSLog(@"[Qiyu]方法:open, 参数:%@",command.arguments.firstObject);
+
     CDVPluginResult* pluginResult = nil;
     id argument = command.arguments.firstObject;
     if (nil == argument) {
@@ -138,6 +142,8 @@
 
 - (void)logout:(CDVInvokedUrlCommand *)command
 {
+    NSLog(@"[Qiyu]方法:logout:, 参数:%@",command.arguments.firstObject);
+
     [[QYSDK sharedSDK] logout:^(){
         NSLog(@"用户退出登录");
     }];
