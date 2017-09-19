@@ -11,6 +11,8 @@
 @implementation Qiyu
 - (void)setUserInfo:(CDVInvokedUrlCommand *)command
 {
+    NSLog(@"[Qiyu]方法:setUserInfo, 参数:%@",command.arguments.firstObject);
+
     CDVPluginResult* result = nil;
     self.userInfoDictionary = command.arguments.firstObject;
     if (self.userInfoDictionary == nil) {
@@ -24,6 +26,8 @@
 
 - (void)open:(CDVInvokedUrlCommand *)command
 {
+     NSLog(@"[Qiyu]方法:open, 参数:%@",command.arguments.firstObject);
+
     CDVPluginResult* pluginResult = nil;
     id argument = command.arguments.firstObject;
     if (nil == argument) {
@@ -52,7 +56,7 @@
             userInfo.userId = [self.userInfoDictionary objectForKey:@"userId"];
             NSDictionary *userData = [self.userInfoDictionary objectForKey:@"data"];
             if (nil != userData) {
-                if ([userData isKindOfClass:NSDictionary.class] == NO) {
+                if ([userData isKindOfClass:NSArray.class] == NO) {
                     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"UserData参数类型错误"];
                     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
                     return;
@@ -100,6 +104,8 @@
                 return;
             }
             
+            commodityInfo = [[QYCommodityInfo alloc] init];
+            commodityInfo.show = YES;
             commodityInfo.title = [commodityDictionary objectForKey:@"title"];
             commodityInfo.desc = [commodityDictionary objectForKey:@"desc"];
             commodityInfo.pictureUrlString = [commodityDictionary objectForKey:@"picture"];
@@ -136,6 +142,8 @@
 
 - (void)logout:(CDVInvokedUrlCommand *)command
 {
+    NSLog(@"[Qiyu]方法:logout:, 参数:%@",command.arguments.firstObject);
+
     [[QYSDK sharedSDK] logout:^(){
         NSLog(@"用户退出登录");
     }];
