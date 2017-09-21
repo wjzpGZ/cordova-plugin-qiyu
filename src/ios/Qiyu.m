@@ -1,24 +1,31 @@
 
+/*
+ 集成:
+ 此插件使用的智齿SDK版本未2.3.0
+ 
+ 安装插件后,需要在工程中集成“智齿”SDK。请参考文档:https://dev.help.sobot.com/chapter1/ios-sdk-jie-ru.html 进行集成。
+ 推荐使用cocoapods进行集成。
+ */
+
 #import "Qiyu.h"
-#import "QYSDK.h"
+#import <SobotKit/SobotKit.h>
+
 
 @interface Qiyu()
 @property (nonatomic, strong) UINavigationController *navigationController;
 @property (nonatomic, strong) NSDictionary *userInfoDictionary;
-@property (nonatomic, strong) NSString *userAvatarURLString;
 @end
 
 @implementation Qiyu
 - (void)setUserInfo:(CDVInvokedUrlCommand *)command
 {
-    NSLog(@"[Qiyu]方法:setUserInfo, 参数:%@",command.arguments.firstObject);
+    NSLog(@"[智齿]方法:setUserInfo, 参数:%@",command.arguments.firstObject);
 
     CDVPluginResult* result = nil;
     self.userInfoDictionary = command.arguments.firstObject;
     if (self.userInfoDictionary == nil) {
         result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"没有参数"];
     }else {
-        self.userAvatarURLString = [self.userInfoDictionary objectForKey:@"avatar"];
         result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     }
     [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
@@ -26,131 +33,108 @@
 
 - (void)open:(CDVInvokedUrlCommand *)command
 {
-     NSLog(@"[Qiyu]方法:open, 参数:%@",command.arguments.firstObject);
-
-    CDVPluginResult* pluginResult = nil;
-    id argument = command.arguments.firstObject;
-    if (nil == argument) {
-         pluginResult  = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"调用open方法必须要传入参数"];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        return;
-    }
-    
     @try {
+        NSLog(@"[智齿]方法:open, 参数:%@",command.arguments.firstObject);
         
-        //设置聊天窗口中用户的头像
-        if (nil != self.userAvatarURLString) {
-            [[QYSDK sharedSDK] customUIConfig].customerHeadImageUrl = self.userAvatarURLString;
-        }
+        ZCLibInitInfo *initInfo = [ZCLibInitInfo new];
+        initInfo.appKey = @"d410160e7f194a38b3574a11d8ca0938";
         
         //设置用户信息
-        QYUserInfo *userInfo = nil;
-        if (nil != self.userInfoDictionary ) {
-            if ([self.userInfoDictionary isKindOfClass:NSDictionary.class] == NO) {
-                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"UserInfo参数类型错误"];
-                [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-                return;
-            }
-            
-            userInfo = [[QYUserInfo alloc] init];
-            userInfo.userId = [self.userInfoDictionary objectForKey:@"userId"];
-            NSDictionary *userData = [self.userInfoDictionary objectForKey:@"data"];
-            if (nil != userData) {
-                if ([userData isKindOfClass:NSArray.class] == NO) {
-                    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"UserData参数类型错误"];
-                    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-                    return;
-                }
-                
-                NSData *data = [NSJSONSerialization dataWithJSONObject:userData options:kNilOptions error:nil];
-                if (nil != data) {
-                    userInfo.data = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                    [[QYSDK sharedSDK] setUserInfo:userInfo];
-                }
+        if (nil != self.userInfoDictionary && self.userInfoDictionary.count > 0) {
+            @try{
+                initInfo.userId = self.userInfoDictionary[@"partnerId"];
+                initInfo.phone = self.userInfoDictionary[@"tel"];
+                initInfo.email = self.userInfoDictionary[@"email"];
+                initInfo.nickName = self.userInfoDictionary[@"uname"];
+                initInfo.realName = self.userInfoDictionary[@"realname"];
+                initInfo.avatarUrl = self.userInfoDictionary[@"face"];
+                initInfo.weiBo = self.userInfoDictionary[@"weibo"];
+                initInfo.weChat = self.userInfoDictionary[@"weixin"];
+                initInfo.qqNumber = self.userInfoDictionary[@"qq"];
+                initInfo.userSex = self.userInfoDictionary[@"sex"];
+                initInfo.userBirthday = self.userInfoDictionary[@"birthday"];
+                initInfo.userRemark = self.userInfoDictionary[@"remark"];
+                initInfo.customInfo = self.userInfoDictionary[@"params"];
+            }@catch(NSException *e) {
+                NSLog(@"[智齿]设置用户信息异常:\n%@",e);
             }
         }
         
-        if ([argument isKindOfClass:NSDictionary.class] == NO) {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"参数类型错误"];
-            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        CDVPluginResult* result = nil;
+        
+        NSDictionary *openArgument = command.arguments.firstObject;
+        if (nil == openArgument ) {
+            initInfo = nil;
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"没有参数"];
+            [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+            NSLog(@"[智齿]%@",@"没有使用参数调用open接口");
             return;
         }
         
         //设置来源
-        QYSource *source = nil;
-        NSDictionary *s = [argument objectForKey:@"source"];
-        if (nil != s) {
-            if ([s isKindOfClass:NSDictionary.class] == NO) {
-                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"source参数类型错误"];
-                [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-                return;
+        NSDictionary *sourceArgument = [openArgument objectForKey:@"source"];
+        if (nil != sourceArgument  && sourceArgument.count > 0) {
+            @try {
+                initInfo.sourceURL = [sourceArgument objectForKey:@"uri"];
+                initInfo.sourceTitle = [sourceArgument objectForKey:@"title"];
+            }@catch(NSException *e) {
+                NSLog(@"[智齿]设置来源异常:\n%@",e);
             }
-            
-            source = [[QYSource alloc] init];
-            source.title =  [s objectForKey:@"title"];
-            source.urlString = [s objectForKey:@"uri"];
-            source.customInfo = [s objectForKey:@"custom"];
+        }else {
+            NSLog(@"[智齿]未设置来源");
         }
         
-      
+        //配置UI
+        ZCKitInfo *uiInfo= [ZCKitInfo new];
+        uiInfo.customBannerColor = [UIColor colorWithRed:233.0/255.0 green:69.0/255.0 blue:63.0/255.0 alpha:1.0];
+        uiInfo.imagePickerColor = uiInfo.customBannerColor;
+        uiInfo.socketStatusButtonBgColor = uiInfo.customBannerColor;
+        uiInfo.isOpenRecord = YES;
+        uiInfo.isShowNickName = YES;
         
         //设置商品信息
-        QYCommodityInfo *commodityInfo = nil;
-        NSDictionary *commodityDictionary = [argument objectForKey:@"product"];
-        if (nil != commodityDictionary) {
-            if ([commodityDictionary isKindOfClass:NSDictionary.class] == NO) {
-                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"product参数类型错误"];
-                [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-                return;
+        ZCProductInfo *productInfo = nil;
+        NSDictionary *productArgument = [openArgument objectForKey:@"product"];
+        if (nil != productArgument && productArgument.count > 0) {
+            @try {
+                productInfo = [ZCProductInfo new];
+                productInfo.thumbUrl = [productArgument objectForKey:@"picture"];
+                productInfo.title = [productArgument objectForKey:@"title"];
+                productInfo.desc = [productArgument objectForKey:@"desc"];
+                productInfo.label = [productArgument objectForKey:@"note"];
+                productInfo.link = [productArgument objectForKey:@"url"];
+                uiInfo.productInfo = productInfo;
+            }@catch(NSException *e) {
+                NSLog(@"[智齿]设置产品信息异常:\n%@",e);
             }
-            
-            commodityInfo = [[QYCommodityInfo alloc] init];
-            commodityInfo.show = YES;
-            commodityInfo.title = [commodityDictionary objectForKey:@"title"];
-            commodityInfo.desc = [commodityDictionary objectForKey:@"desc"];
-            commodityInfo.pictureUrlString = [commodityDictionary objectForKey:@"picture"];
-            commodityInfo.note = [commodityDictionary objectForKey:@"note"];
-            commodityInfo.urlString = [commodityDictionary objectForKey:@"url"];
+        }else {
+            NSLog(@"[智齿]未设置商品信息");
         }
         
-        NSString *appKey = [[self.commandDelegate settings] objectForKey:@"qiyu_app_key"];
-        [[QYSDK sharedSDK] registerAppId:appKey appName:@"黔赞"];
+        UIViewController *viewController = [UIApplication sharedApplication].keyWindow.rootViewController;
         
-        QYSessionViewController *sessionViewController = [[QYSDK sharedSDK] sessionViewController];
-        sessionViewController.sessionTitle = [argument objectForKey:@"title"];
-        sessionViewController.source = source;
-        sessionViewController.commodityInfo = commodityInfo;
-        sessionViewController.navigationItem.leftBarButtonItem =
-        [[UIBarButtonItem alloc] initWithTitle:@"关闭" style:UIBarButtonItemStylePlain
-                                        target:self action:@selector(onBack)];
-        
-        self.navigationController =
-        [[UINavigationController alloc] initWithRootViewController:sessionViewController];
-        [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:self.navigationController animated:YES completion:nil];
-
-    } @catch (NSException *exception) {
-        NSLog(@"[Qiyu]:%@",exception);
-        NSString *message = [NSString stringWithFormat:@"App发生异常[%@]",exception.name];
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:message];
+        [[ZCLibClient getZCLibClient] setLibInitInfo:initInfo];
+        [ZCSobot startZCChatView:uiInfo with:viewController target:nil pageBlock:^(ZCUIChatController *object, ZCPageBlockType type) {
+            // 点击返回
+            if(type==ZCPageBlockGoBack){
+                NSLog(@"点击了关闭按钮");
+            }
+            
+            // 页面UI初始化完成，可以获取UIView，自定义UI
+            if(type==ZCPageBlockLoadFinish){
+                
+            }
+        } messageLinkClick:^(NSString *link){
+            NSLog(@"[智齿]点击链接:%@息",link);
+        }];
+    }@catch(NSException *e) {
+        NSLog(@"[智齿]调用open方法异常:\n%@",e);
     }
-    
-    if (nil != pluginResult) {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    }
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)logout:(CDVInvokedUrlCommand *)command
 {
-    NSLog(@"[Qiyu]方法:logout:, 参数:%@",command.arguments.firstObject);
-
-    [[QYSDK sharedSDK] logout:^(){
-        NSLog(@"用户退出登录");
-    }];
+    NSLog(@"[智齿]方法:logout:, 参数:%@",command.arguments.firstObject);
 }
 
-- (void)onBack
-{
-    [self.navigationController dismissViewControllerAnimated:YES completion:NULL];
-}
 @end
